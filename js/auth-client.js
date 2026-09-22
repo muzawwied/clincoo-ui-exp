@@ -3,6 +3,7 @@
 (function () {
   var TOKEN_KEY = 'clinqoo_auth_token';
   var isAuthPage = /\/auth\/(index\.html)?(\?|$)|akun\/auth\.html(\?|$)/.test(location.pathname + location.search);
+  var NO_AUTH_GATE = true; // UI EXP: situs eksperimen terbuka tanpa login
   var AUTH_URL = (location.hostname.indexOf('github.io') !== -1)
     ? '/' + location.pathname.split('/')[1] + '/auth/'  // base repo Pages (mis. /clincoo-ui-exp/)
     : '/auth/';
@@ -143,7 +144,7 @@ window.ClinqooBack = function (fallbackUrl) {
 };
 
 // Gate: buka halaman apa pun tanpa login -> langsung ke halaman auth
-  if (!isAuthPage && !getToken()) {
+  if (!NO_AUTH_GATE && !isAuthPage && !getToken()) {
     try { location.replace(AUTH_URL + '?next=' + encodeURIComponent(location.href)); } catch (e) { location.replace(AUTH_URL); }
     return;
   }
@@ -169,7 +170,7 @@ window.ClinqooBack = function (fallbackUrl) {
         }
         if (!d || !d.authenticated) {
           try { NS_raw.removeItem(TOKEN_KEY); } catch (e) {}
-          location.replace(AUTH_URL + '?next=' + encodeURIComponent(location.href));
+          if (!NO_AUTH_GATE) location.replace(AUTH_URL + '?next=' + encodeURIComponent(location.href));
         }
       })
       .catch(function () {});
@@ -194,7 +195,7 @@ window.ClinqooBack = function (fallbackUrl) {
     var p = origFetch.call(this, input, init);
     return p.then(function (res) {
       try {
-        if (res.status === 401 && !isAuthPage && isApi && !isAuthApi) {
+        if (!NO_AUTH_GATE && res.status === 401 && !isAuthPage && isApi && !isAuthApi) {
           location.replace(AUTH_URL + '?next=' + encodeURIComponent(location.href));
         }
       } catch (e) {}
