@@ -4,7 +4,7 @@
   var TOKEN_KEY = 'clinqoo_auth_token';
   var isAuthPage = /\/auth\/(index\.html)?(\?|$)|akun\/auth\.html(\?|$)/.test(location.pathname + location.search);
   var AUTH_URL = (location.hostname.indexOf('github.io') !== -1)
-    ? '/Clincoo./auth/'
+    ? location.pathname.replace(/^\/([^\/]+\/)?.*$/, '$1') + 'auth/'  // base repo Pages (mis. /clincoo-ui-exp/)
     : '/auth/';
 
 // ===== NAMESPACE DATA PER AKUN =====
